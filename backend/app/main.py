@@ -1,0 +1,72 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from dotenv import load_dotenv
+
+from app.core.config import settings
+from app.core.logging_config import configure_logging, get_logger
+from app.core.exceptions import AppError, NotFoundError
+from app.routes import webhook, merchants, transactions, reports, payments
+
+load_dotenv()
+logger = get_logger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Validate config and configure logging on startup."""
+    configure_logging()
+    if not settings.is_db_configured():
+        logger.error("SUPABASE_URL and SUPABASE_KEY are required; API data endpoints will fail")
+    if not settings.is_llm_configured():
+        logger.warning("GEMINI_API_KEY not set; WhatsApp parsing will fail until set")
+    if not settings.is_webhook_configured():
+        logger.warning("Twilio credentials not set; webhook will not send replies")
+    logger.info("SMB Bookkeeper API starting (env=%s)", settings.app_env)
+    yield
+    logger.info("Shutdown")
+
+
+app = FastAPI(
+    title="SMB Bookkeeper API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.get_cors_origins_list(),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.exception_handler(NotFoundError)
+async def not_found_handler(request: Request, exc: NotFoundError) -> JSONResponse:
+    return JSONResponse(
+        status_code=404,
+        content={"detail": exc.message, "code": exc.code},
+    )
+
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.message, "code": exc.code},
+    )
+
+
+app.include_router(webhook.router, tags=["WhatsApp"])
+app.include_router(merchants.router, prefix="/api", tags=["Merchants"])
+app.include_router(transactions.router, prefix="/api", tags=["Transactions"])
+app.include_router(reports.router, prefix="/api", tags=["Reports"])
+app.include_router(payments.router, prefix="/api", tags=["Payments"])
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok", "service": "smb-bookkeeper"}

@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Backend env (keep .env.example)
+.env
+.env.local
+
+# Frontend (backup for root-level tools)
+node_modules/
+dist/
+
+# OS & editor
+.DS_Store
+Thumbs.db
+*.log
