@@ -107,20 +107,14 @@ export function RecentActivity({
       }, 3000);
     });
 
-    return () => {
-      try {
-        supabase.removeChannel(channel);
-      } catch {
-        // ignore
-      }
-    };
+    return () => channel.unsubscribe();
   }, [configured, merchantId, maxItems]);
 
   return (
     <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] p-6 shadow-(--shadow-sm) backdrop-blur">
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-semibold">Recent Activity</div>
-        <div className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-tertiary) px-2 py-1">
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <span className="truncate text-sm font-semibold">Recent Activity</span>
+        <div className="shrink-0 inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-tertiary) px-2 py-1">
           <span className={cn("h-2 w-2 rounded-full", configured ? "bg-(--green-500) liveDot" : "bg-(--red-500)")} />
           <span className={cn("text-[10px] font-medium tracking-wider", configured ? "text-(--green-400)" : "text-(--red-400)")}>
             {configured ? "LIVE" : "OFFLINE"}
@@ -153,12 +147,12 @@ export function RecentActivity({
                   className="rounded-xl px-3 py-2"
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
                       <div className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", meta.iconBg)}>
                         <Icon className={cn("h-4 w-4", meta.iconFg)} />
                       </div>
-                      <div className="min-w-0">
-                        <div className="truncate text-sm text-(--text-primary)">
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <div className="truncate text-sm text-(--text-primary)" title={describe(t)}>
                           {describe(t)}
                         </div>
                         <div className="mt-0.5 text-xs text-(--text-secondary)">
@@ -166,7 +160,6 @@ export function RecentActivity({
                         </div>
                       </div>
                     </div>
-
                     <div className={cn("shrink-0 font-mono text-sm", meta.amountFg)}>
                       {meta.prefix}
                       {formatCurrency(Number(t.total_amount) || 0)}

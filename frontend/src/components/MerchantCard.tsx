@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import type { Merchant } from "@/lib/types";
@@ -10,20 +9,22 @@ interface MerchantCardProps {
 
 export function MerchantCard({ merchant }: MerchantCardProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
-        <User className="h-4 w-4 text-[var(--muted-foreground)]" />
-        <span className="font-medium">{merchant.name || merchant.phone}</span>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-[var(--muted-foreground)]">{merchant.phone}</p>
-        {merchant.business_type && (
-          <p className="text-sm mt-1">{merchant.business_type}</p>
-        )}
-        <Link to={`/merchant/${merchant.id}`} className="mt-3 block">
-          <Button variant="outline" size="sm">View dashboard</Button>
-        </Link>
-      </CardContent>
-    </Card>
+    <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] p-6 shadow-(--shadow-sm) backdrop-blur">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-(--border) bg-(--bg-tertiary) text-(--text-secondary)">
+          <User className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-(--text-primary)">{merchant.name || merchant.phone}</p>
+          <p className="truncate text-sm text-(--text-secondary)">{merchant.phone}</p>
+          {merchant.business_type && (
+            <p className="mt-0.5 truncate text-xs text-(--text-tertiary)">{merchant.business_type}</p>
+          )}
+        </div>
+      </div>
+      <Link to={`/merchant/${merchant.id}`} className="mt-4 block">
+        <Button variant="outline" size="sm">View dashboard</Button>
+      </Link>
+    </div>
   );
 }

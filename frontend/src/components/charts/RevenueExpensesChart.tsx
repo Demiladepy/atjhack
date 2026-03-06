@@ -100,20 +100,16 @@ export function RevenueExpensesChart({ transactions }: { transactions: Transacti
 
   return (
     <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] p-6 shadow-(--shadow-sm) backdrop-blur">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">Revenue vs Expenses</div>
-          <div className="mt-1 text-sm text-(--text-secondary)">
+          <div className="mt-1 break-words text-sm text-(--text-secondary)">
             Last {period} days ·{" "}
-            <span className="font-mono text-(--green-400)">{formatCurrencyCompact(totalSales)}</span>{" "}
-            <span className="text-(--text-tertiary)">sales</span>{" "}
-            <span className="text-(--text-tertiary)">/</span>{" "}
-            <span className="font-mono text-(--red-400)">{formatCurrencyCompact(totalExpenses)}</span>{" "}
-            <span className="text-(--text-tertiary)">expenses</span>
+            <span className="font-mono text-(--green-400)">{formatCurrencyCompact(totalSales)}</span> sales /{" "}
+            <span className="font-mono text-(--red-400)">{formatCurrencyCompact(totalExpenses)}</span> expenses
           </div>
         </div>
-
-        <div className="inline-flex w-fit items-center rounded-xl border border-(--border) bg-(--bg-tertiary) p-1">
+        <div className="shrink-0 inline-flex items-center rounded-xl border border-(--border) bg-(--bg-tertiary) p-1">
           {([7, 30, 90] as Period[]).map((p) => (
             <button
               key={p}

@@ -1,5 +1,6 @@
 import { Fragment, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router";
 import { ChevronLeft, Search } from "lucide-react";
 
 import { fetchTransactions } from "@/lib/api";
@@ -76,21 +77,19 @@ export default function Transactions() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-semibold tracking-tight">Transaction History</h1>
           <p className="mt-1 text-sm text-(--text-secondary)">
             Search, filter, and inspect the WhatsApp messages behind each entry.
           </p>
         </div>
-        <Button
-          variant="outline"
-          className="w-fit"
-          onClick={() => (window.location.href = "/")}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back
-        </Button>
+        <Link to="/dashboard" className="shrink-0">
+          <Button variant="outline" className="w-fit gap-2">
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </Link>
       </header>
 
       <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] p-4 shadow-(--shadow-sm) backdrop-blur">
@@ -207,10 +206,10 @@ export default function Transactions() {
                           {typeLabels[t.type] ?? t.type}
                         </Badge>
                       </TableCell>
-                      <TableCell className="max-w-[420px] truncate text-sm text-(--text-primary)">
+                      <TableCell className="max-w-[280px] min-w-0 truncate text-sm text-(--text-primary)" title={t.item || undefined}>
                         {t.item || "—"}
                       </TableCell>
-                      <TableCell className="text-sm text-(--text-secondary)">
+                      <TableCell className="max-w-[160px] min-w-0 truncate text-sm text-(--text-secondary)" title={t.customer_name || undefined}>
                         {t.customer_name || "—"}
                       </TableCell>
                       <TableCell className={cn("text-right font-mono text-sm", amountClass)}>

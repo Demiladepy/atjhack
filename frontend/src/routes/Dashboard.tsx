@@ -78,17 +78,17 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="mt-1 text-sm text-(--text-secondary)">
-            {merchant?.name ?? "Merchant"} ·{" "}
-            <span className="text-(--text-tertiary)">
-              {merchant?.location ?? "Location"}
-            </span>
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="mt-1 truncate text-sm text-(--text-secondary)">
+            {merchant?.name ?? "Merchant"}
+            <span className="text-(--text-tertiary)"> · {merchant?.location ?? "Location"}</span>
           </p>
         </div>
-        <LiveIndicator />
+        <div className="shrink-0">
+          <LiveIndicator />
+        </div>
       </header>
 
       {loadingMerchant && !isDemo ? (

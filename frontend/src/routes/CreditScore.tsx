@@ -112,7 +112,7 @@ export default function CreditScore() {
           <Button className="mt-6" onClick={() => setShowUpgradeModal(true)}>
             Subscribe — ₦2,000/month
           </Button>
-          <Link to="/" className="mt-4">
+          <Link to="/dashboard" className="mt-4">
             <Button variant="outline">Back to Dashboard</Button>
           </Link>
         </div>
@@ -132,7 +132,7 @@ export default function CreditScore() {
       <div className="rounded-xl border border-(--border) bg-(--bg-secondary)/60 p-6">
         <div className="text-sm font-semibold text-(--red-400)">Could not load credit score.</div>
         <div className="mt-3">
-          <Link to="/">
+          <Link to="/dashboard">
             <Button variant="outline">Back</Button>
           </Link>
         </div>
@@ -150,30 +150,30 @@ export default function CreditScore() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Financial Health Profile</h1>
-          <p className="mt-1 text-sm text-(--text-secondary)">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-2xl font-semibold tracking-tight">Financial Health Profile</h1>
+          <p className="mt-1 truncate text-sm text-(--text-secondary)">
             {merchant?.name || merchant?.phone || "Merchant"}
-            {merchant?.location ? ` — ${merchant.location}` : ""}
+            {merchant?.location ? ` · ${merchant.location}` : ""}
           </p>
         </div>
-        <Link to="/">
+        <Link to="/dashboard" className="shrink-0">
           <Button variant="outline">Back</Button>
         </Link>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] p-6 shadow-(--shadow-sm) backdrop-blur">
-            <div className="text-sm font-semibold">Credit Score</div>
-            <div className="mt-1 text-sm text-(--text-secondary)">300–850 scale</div>
+          <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.04)] p-6 shadow-(--shadow-sm) backdrop-blur overflow-hidden">
+            <div className="text-sm font-semibold text-(--text-primary)">Credit Score</div>
+            <div className="mt-0.5 text-xs text-(--text-secondary)">300–850 scale</div>
 
-            <div className="mt-6 flex items-center justify-center">
-              <div className="relative w-full max-w-[360px]">
-                <svg viewBox="0 0 200 120" className="h-[220px] w-full">
+            <div className="mt-5 flex items-center justify-center pb-2">
+              <div className="relative w-full max-w-[340px]">
+                <svg viewBox="0 0 200 120" className="h-[200px] w-full" aria-hidden>
                   <defs>
-                    <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="0">
+                    <linearGradient id="creditScoreGrad" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor="var(--red-500)" />
                       <stop offset="50%" stopColor="var(--amber-500)" />
                       <stop offset="100%" stopColor="var(--green-500)" />
@@ -183,14 +183,14 @@ export default function CreditScore() {
                     d="M 10 110 A 90 90 0 0 1 190 110"
                     fill="none"
                     stroke="var(--border)"
-                    strokeWidth="12"
+                    strokeWidth="10"
                     strokeLinecap="round"
                   />
                   <motion.path
                     d="M 10 110 A 90 90 0 0 1 190 110"
                     fill="none"
-                    stroke="url(#scoreGrad)"
-                    strokeWidth="12"
+                    stroke="url(#creditScoreGrad)"
+                    strokeWidth="10"
                     strokeLinecap="round"
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: pct }}
@@ -198,27 +198,27 @@ export default function CreditScore() {
                   />
                 </svg>
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center pt-10">
-                  <div className="font-mono text-5xl font-bold text-(--text-primary)">
+                <div className="absolute inset-0 flex flex-col items-center justify-center pt-8 pb-4">
+                  <div className="font-mono text-4xl font-bold tabular-nums text-(--text-primary)">
                     {effectiveScore.overall_score}
                   </div>
                   <div
                     className={cn(
-                      "mt-2 text-sm font-semibold uppercase tracking-widest",
+                      "mt-1.5 text-sm font-semibold uppercase tracking-widest",
                       ratingColor[effectiveScore.rating]
                     )}
                   >
                     {effectiveScore.rating}
                   </div>
-                  <div className="mt-3 text-xs text-(--text-tertiary)">
+                  <p className="mt-3 px-2 text-center text-sm text-(--text-secondary) leading-snug">
                     Based on 90 days of activity. Eligible for microloans up to{" "}
-                    <span className="font-mono text-(--green-400)">{loan.label}</span>.
-                  </div>
+                    <span className="font-mono font-semibold text-[#22c55e]">{loan.label}</span>.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-(--border) bg-(--bg-tertiary)/35 p-4">
                 <div className="text-xs uppercase tracking-wider text-(--text-secondary)">
                   90-day revenue
@@ -231,10 +231,10 @@ export default function CreditScore() {
                 <div className="text-xs uppercase tracking-wider text-(--text-secondary)">
                   Credit limit
                 </div>
-                <div className="mt-2 font-mono text-lg text-(--text-primary)">
+                <div className="mt-2 font-mono text-lg font-semibold text-[#22c55e]">
                   {loan.label}
                 </div>
-                <div className="mt-1 text-xs text-(--text-tertiary)">{loan.note}</div>
+                <div className="mt-1 text-xs text-(--text-secondary)">({loan.note})</div>
               </div>
             </div>
           </div>

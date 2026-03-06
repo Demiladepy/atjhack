@@ -19,7 +19,7 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/transactions", label: "Transactions", icon: ListChecks },
   { to: "/debtors", label: "Debtors", icon: Users },
   { to: "/credit-score", label: "Credit Score", icon: BadgePercent },
@@ -40,7 +40,7 @@ export function Sidebar() {
     if (p.startsWith("/transactions")) return "/transactions";
     if (p.startsWith("/debtors")) return "/debtors";
     if (p.startsWith("/credit-score")) return "/credit-score";
-    return "/";
+    return "/dashboard";
   }, [location.pathname]);
 
   const displayName = merchant?.name ?? "Mama Nkechi";
@@ -54,19 +54,20 @@ export function Sidebar() {
       )}
     >
       <div className="flex h-full flex-col px-3 py-4">
-        <div className={cn("flex items-center gap-3 px-2 py-2", collapsed && "justify-center")}>
-          <div className="grid h-9 w-9 place-items-center rounded-xl border border-(--border) bg-(--bg-tertiary) shadow-(--shadow-sm)">
-            <span className="text-sm font-semibold tracking-tight">SB</span>
+        <Link
+          to="/"
+          className={cn("flex min-w-0 items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-(--bg-tertiary)/50", collapsed && "justify-center")}
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-(--border) bg-white p-1 shadow-(--shadow-sm)">
+            <img src="/logo.png" alt="SMB Bookkeeper" className="h-full w-full object-contain" />
           </div>
           {!collapsed ? (
-            <div className="min-w-0">
+            <div className="min-w-0 overflow-hidden">
               <div className="truncate text-sm font-semibold">SMB Bookkeeper</div>
-              <div className="truncate text-xs text-(--text-secondary)">
-                Financial Clarity
-              </div>
+              <div className="truncate text-xs text-(--text-secondary)">Financial Clarity</div>
             </div>
           ) : null}
-        </div>
+        </Link>
 
         <div className="my-3 h-px bg-(--border)" />
 
@@ -94,30 +95,27 @@ export function Sidebar() {
 
         <div className="mt-auto space-y-3 px-2 pb-1">
           <div className={cn("rounded-xl border border-(--border) bg-[rgba(255,255,255,0.02)] p-3", collapsed && "p-2")}>
-            <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
+            <div className={cn("flex min-w-0 items-center gap-3", collapsed && "justify-center")}>
               <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-(--bg-tertiary) text-sm font-semibold">
                 {initials(displayName || "M")}
               </div>
               {!collapsed ? (
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold">
-                    {displayName}
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="truncate text-sm font-semibold">{displayName}</span>
                     {isDemo ? (
-                      <span className="ml-2 inline-flex items-center rounded-full border border-(--border) bg-(--bg-tertiary) px-2 py-0.5 text-[10px] text-(--text-secondary)">
+                      <span className="shrink-0 inline-flex items-center rounded-full border border-(--border) bg-(--bg-tertiary) px-2 py-0.5 text-[10px] text-(--text-secondary)">
                         Demo
                       </span>
                     ) : null}
                   </div>
-                  <div className="truncate text-xs text-(--text-secondary)">
-                    {locationText}
-                  </div>
+                  <div className="truncate text-xs text-(--text-secondary)">{locationText}</div>
                 </div>
               ) : null}
             </div>
-
             {!collapsed ? (
-              <div className="mt-3 flex items-center justify-between">
-                <LiveIndicator />
+              <div className="mt-3 flex min-w-0 items-center justify-between gap-2">
+                <div className="min-w-0 shrink"><LiveIndicator /></div>
                 <button
                   onClick={() => setCollapsed((v) => !v)}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-(--border) bg-(--bg-tertiary) text-(--text-secondary) transition-colors hover:text-(--text-primary)"

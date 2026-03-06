@@ -25,12 +25,11 @@ export function TopProducts({ transactions }: { transactions: Transaction[] }) {
 
   return (
     <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] p-6 shadow-(--shadow-sm) backdrop-blur">
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-semibold">Top Products</div>
-        <div className="text-xs text-(--text-secondary)">by revenue</div>
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <span className="truncate text-sm font-semibold">Top Products</span>
+        <span className="shrink-0 text-xs text-(--text-secondary)">by revenue</span>
       </div>
-
-      <div className="mt-4 h-[220px] w-full">
+      <div className="mt-4 h-[220px] w-full min-w-0">
         {data.length === 0 ? (
           <div className="grid h-full place-items-center rounded-xl border border-dashed border-(--border) bg-(--bg-tertiary)/40 p-6 text-center">
             <div>
@@ -51,10 +50,11 @@ export function TopProducts({ transactions }: { transactions: Transaction[] }) {
               <YAxis
                 type="category"
                 dataKey="name"
-                width={90}
-                tick={{ fill: "var(--text-secondary)", fontSize: 12 }}
+                width={100}
+                tick={{ fill: "var(--text-secondary)", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
+                interval={0}
               />
               <Bar
                 dataKey="value"
@@ -70,9 +70,9 @@ export function TopProducts({ transactions }: { transactions: Transaction[] }) {
       {data.length ? (
         <div className="mt-4 space-y-2">
           {data.map((d) => (
-            <div key={d.name} className="flex items-center justify-between text-xs">
-              <span className="truncate text-(--text-secondary)">{d.name}</span>
-              <span className="font-mono text-(--text-primary)">
+            <div key={d.name} className="flex min-w-0 items-center justify-between gap-2 text-xs">
+              <span className="min-w-0 truncate text-(--text-secondary)" title={d.name}>{d.name}</span>
+              <span className="shrink-0 font-mono text-(--text-primary)">
                 {formatCurrencyCompact(d.value)}
               </span>
             </div>

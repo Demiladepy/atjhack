@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Home from "./routes/Home";
 import Dashboard from "./routes/Dashboard";
 import Transactions from "./routes/Transactions";
 import CreditScore from "./routes/CreditScore";
@@ -12,7 +13,7 @@ const queryClient = new QueryClient();
 
 function CreditScoreIndex() {
   const { merchant } = usePrimaryMerchant();
-  if (!merchant) return <Navigate to="/" replace />;
+  if (!merchant) return <Navigate to="/dashboard" replace />;
   return <Navigate to={`/credit-score/${merchant.id}`} replace />;
 }
 
@@ -21,8 +22,9 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route element={<AppShell />}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/debtors" element={<Debtors />} />
             <Route path="/credit-score" element={<CreditScoreIndex />} />

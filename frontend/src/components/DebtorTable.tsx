@@ -33,8 +33,8 @@ export function DebtorTable({ debts }: DebtorTableProps) {
 
   return (
     <Card className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] shadow-(--shadow-sm) backdrop-blur">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <div>
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+        <div className="min-w-0 flex-1">
           <CardTitle>Outstanding Debts</CardTitle>
           <div className="mt-1 text-sm text-(--text-secondary)">
             Biggest debtors first.
@@ -42,7 +42,7 @@ export function DebtorTable({ debts }: DebtorTableProps) {
         </div>
         <Badge
           variant="warning"
-          className="border border-(--border) bg-[rgba(245,158,11,0.12)] font-mono text-(--amber-400)"
+          className="shrink-0 border border-(--border) bg-[rgba(245,158,11,0.12)] font-mono text-(--amber-400)"
         >
           Total {formatCurrency(total)}
         </Badge>
@@ -77,7 +77,7 @@ export function DebtorTable({ debts }: DebtorTableProps) {
 
                 return (
                   <TableRow key={d.id}>
-                    <TableCell className="text-sm font-medium text-(--text-primary)">
+                    <TableCell className="max-w-[180px] truncate text-sm font-medium text-(--text-primary)" title={d.customer_name}>
                       {d.customer_name}
                     </TableCell>
                     <TableCell className="text-right font-mono font-medium text-(--amber-400)">

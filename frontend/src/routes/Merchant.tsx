@@ -36,7 +36,7 @@ export default function Merchant() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-red-500">Merchant not found.</p>
-        <Link to="/"><Button variant="outline" className="ml-4">Back to Dashboard</Button></Link>
+        <Link to="/dashboard"><Button variant="outline" className="ml-4">Back to Dashboard</Button></Link>
       </div>
     );
   }
@@ -63,7 +63,7 @@ export default function Merchant() {
     <div className="min-h-screen bg-[var(--background)] p-6">
       <header className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/"><Button variant="outline" size="sm">Back</Button></Link>
+          <Link to="/dashboard"><Button variant="outline" size="sm">Back</Button></Link>
           <h1 className="text-2xl font-bold">{merchant.name || merchant.phone}</h1>
         </div>
       </header>

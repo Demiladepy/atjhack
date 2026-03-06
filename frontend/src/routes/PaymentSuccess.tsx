@@ -60,7 +60,7 @@ export default function PaymentSuccess() {
           </p>
           <Button
             className="mt-8"
-            onClick={() => navigate(merchantId ? `/credit-score/${merchantId}` : "/")}
+            onClick={() => navigate(merchantId ? `/credit-score/${merchantId}` : "/dashboard")}
           >
             Go to Dashboard
           </Button>
@@ -69,7 +69,7 @@ export default function PaymentSuccess() {
       {status === "failed" && (
         <>
           <p className="text-(--red-400)">{message}</p>
-          <Button variant="outline" className="mt-6" onClick={() => navigate("/")}>
+          <Button variant="outline" className="mt-6" onClick={() => navigate("/dashboard")}>
             Back to Dashboard
           </Button>
         </>

@@ -1,15 +1,17 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "";
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL ?? "").trim();
+const supabaseKey = (import.meta.env.VITE_SUPABASE_ANON_KEY ?? "").trim();
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase: SupabaseClient | null =
+  supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export function subscribeToTransactions(
   merchantId: string,
   callback: (payload: unknown) => void
-) {
-  return supabase
+): { unsubscribe: () => void } {
+  if (!supabase) return { unsubscribe: () => {} };
+  const channel = supabase
     .channel("transactions-realtime")
     .on(
       "postgres_changes",
@@ -22,4 +24,13 @@ export function subscribeToTransactions(
       callback
     )
     .subscribe();
+  return {
+    unsubscribe: () => {
+      try {
+        supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
+    },
+  };
 }

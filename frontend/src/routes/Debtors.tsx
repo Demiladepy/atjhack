@@ -20,13 +20,11 @@ export default function Debtors() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Debtors</h1>
-          <p className="mt-1 text-sm text-(--text-secondary)">
-            Outstanding debts and repayment status.
-          </p>
-        </div>
+      <header className="min-w-0">
+        <h1 className="text-2xl font-semibold tracking-tight">Debtors</h1>
+        <p className="mt-1 text-sm text-(--text-secondary)">
+          Outstanding debts and repayment status.
+        </p>
       </header>
 
       {isLoading && !isDemo ? (
