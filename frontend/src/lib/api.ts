@@ -1,7 +1,14 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
+const API_KEY = import.meta.env.VITE_DASHBOARD_API_KEY ?? "";
+
+function authHeaders(): HeadersInit {
+  const headers: Record<string, string> = {};
+  if (API_KEY) headers["X-API-Key"] = API_KEY;
+  return headers;
+}
 
 async function fetchApi<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`);
+  const res = await fetch(`${API_BASE}${path}`, { headers: authHeaders() });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -34,7 +41,9 @@ export async function fetchTransactions(
 }
 
 export async function fetchCreditScore(merchantId: string) {
-  const res = await fetch(`${API_BASE}/api/merchants/${merchantId}/reports/credit-score`);
+  const res = await fetch(`${API_BASE}/api/merchants/${merchantId}/reports/credit-score`, {
+    headers: authHeaders(),
+  });
   if (res.status === 402) throw new Error("UPGRADE_REQUIRED");
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{
@@ -50,7 +59,7 @@ export async function fetchCreditScore(merchantId: string) {
 export async function initializePayment(merchantId: string, plan: string = "pro_monthly") {
   const res = await fetch(`${API_BASE}/api/payments/initialize`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ merchant_id: merchantId, plan }),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -58,7 +67,9 @@ export async function initializePayment(merchantId: string, plan: string = "pro_
 }
 
 export async function verifyPayment(reference: string) {
-  const res = await fetch(`${API_BASE}/api/payments/verify/${reference}`);
+  const res = await fetch(`${API_BASE}/api/payments/verify/${reference}`, {
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{
     verified: boolean;

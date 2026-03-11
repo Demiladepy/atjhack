@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     paystack_secret_key: str = ""
     paystack_public_key: str = ""
 
+    # Dashboard API key (protects /api/* endpoints)
+    dashboard_api_key: str = ""
+
     @field_validator("supabase_url", "supabase_key", "gemini_api_key", mode="before")
     @classmethod
     def require_non_empty(cls, v: str) -> str:

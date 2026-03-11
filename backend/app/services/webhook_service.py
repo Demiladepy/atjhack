@@ -44,16 +44,29 @@ class WebhookService:
             logger.warning("Webhook received message with empty From")
             return "We need your number to track your business. Please send from WhatsApp."
 
-        merchant = self.merchants.get_or_create(phone, profile_name or "Merchant")
+        try:
+            merchant = self.merchants.get_or_create(phone, profile_name or "Merchant")
+        except Exception as e:
+            logger.error("Failed to get/create merchant phone=%s: %s", phone, e)
+            return "E get small server wahala. Abeg try again in one minute 🙏"
+
         merchant_id = merchant["id"]
 
         parsed = await parse_message(body)
         intent = parsed.get("intent") or "other"
 
-        if intent == "transaction":
-            return await self._handle_transaction(merchant_id, body, parsed)
-        if intent == "report_request":
-            return await self._handle_report_request(merchant_id, parsed)
+        try:
+            if intent == "transaction":
+                return await self._handle_transaction(merchant_id, body, parsed)
+            if intent == "report_request":
+                return await self._handle_report_request(merchant_id, parsed)
+        except Exception as e:
+            logger.error("Error handling intent=%s: %s", intent, e)
+            return (
+                "Sorry, e get small problem saving your data. Abeg try send am again.\n\n"
+                "Example: \"I sell 5 bags rice 50k\""
+            )
+
         return parsed.get("response", DEFAULT_OTHER_RESPONSE)
 
     async def _handle_transaction(

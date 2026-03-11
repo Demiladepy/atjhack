@@ -1,17 +1,23 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
 from app.core.logging_config import configure_logging, get_logger
+from app.core.auth import require_api_key
 from app.core.exceptions import AppError, NotFoundError
 from app.routes import webhook, merchants, transactions, reports, payments
 
 load_dotenv()
 logger = get_logger(__name__)
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 
 @asynccontextmanager
@@ -34,6 +40,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Rate limiting: 60 req/min default, protects Gemini API costs
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -60,11 +70,15 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
     )
 
 
+# Public routes (webhook has its own Twilio signature auth)
 app.include_router(webhook.router, tags=["WhatsApp"])
-app.include_router(merchants.router, prefix="/api", tags=["Merchants"])
-app.include_router(transactions.router, prefix="/api", tags=["Transactions"])
-app.include_router(reports.router, prefix="/api", tags=["Reports"])
+# Paystack webhook must stay public (signature-verified separately)
 app.include_router(payments.router, prefix="/api", tags=["Payments"])
+
+# Protected dashboard routes — require API key in production
+app.include_router(merchants.router, prefix="/api", tags=["Merchants"], dependencies=[Depends(require_api_key)])
+app.include_router(transactions.router, prefix="/api", tags=["Transactions"], dependencies=[Depends(require_api_key)])
+app.include_router(reports.router, prefix="/api", tags=["Reports"], dependencies=[Depends(require_api_key)])
 
 
 @app.get("/health")
