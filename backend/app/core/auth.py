@@ -16,17 +16,32 @@ async def require_api_key(
     """
     FastAPI dependency that enforces API key auth on dashboard endpoints.
 
-    - If DASHBOARD_API_KEY is not set, auth is skipped (dev convenience).
-    - In production, requests without a valid key get 401.
+    - In development: if DASHBOARD_API_KEY is not set, auth is skipped.
+    - In production: always requires a valid key (fails hard if not configured).
     """
     expected = settings.dashboard_api_key
+
     if not expected:
-        # No key configured — skip auth (development mode)
+        if settings.app_env == "production":
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="API authentication is not configured",
+            )
+        # Dev convenience: skip auth when no key is set
         return "dev"
 
-    if not api_key or not secrets.compare_digest(api_key, expected):
+    if not api_key:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing API key",
+            detail="Missing API key — include X-API-Key header",
+            headers={"WWW-Authenticate": "ApiKey"},
         )
+
+    if not secrets.compare_digest(api_key, expected):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+            headers={"WWW-Authenticate": "ApiKey"},
+        )
+
     return api_key

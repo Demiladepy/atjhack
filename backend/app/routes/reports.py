@@ -7,6 +7,7 @@ from app.models.schemas import CreditScoreResponse
 from app.services.reports import calculate_credit_score
 from app.services.gating import is_pro
 from app.core.exceptions import NotFoundError
+from app.core.validation import validate_uuid
 
 router = APIRouter()
 
@@ -19,6 +20,7 @@ async def get_credit_score(
     debt_repo: DebtRepo,
 ) -> CreditScoreResponse:
     """Get credit score for merchant (Pro subscription required)."""
+    validate_uuid(merchant_id, "merchant_id")
     try:
         repo.get_by_id(merchant_id)
     except NotFoundError as e:

@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.core.logging_config import configure_logging, get_logger
 from app.core.auth import require_api_key
 from app.core.exceptions import AppError, NotFoundError
+from app.core.middleware import SecurityHeadersMiddleware, RequestSizeLimitMiddleware
 from app.routes import webhook, merchants, transactions, reports, payments
 
 load_dotenv()
@@ -24,12 +25,21 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 async def lifespan(app: FastAPI):
     """Validate config and configure logging on startup."""
     configure_logging()
+
     if not settings.is_db_configured():
         logger.error("SUPABASE_URL and SUPABASE_KEY are required; API data endpoints will fail")
     if not settings.is_llm_configured():
         logger.warning("GEMINI_API_KEY not set; WhatsApp parsing will fail until set")
     if not settings.is_webhook_configured():
         logger.warning("Twilio credentials not set; webhook will not send replies")
+
+    # Production safety checks
+    if settings.app_env == "production":
+        if not settings.dashboard_api_key:
+            logger.error("DASHBOARD_API_KEY not set in production — API endpoints are unprotected!")
+        if settings.cors_origins.strip() == "*":
+            logger.error("CORS_ORIGINS is wildcard (*) in production — restrict to your frontend domain!")
+
     logger.info("SMB Bookkeeper API starting (env=%s)", settings.app_env)
     yield
     logger.info("Shutdown")
@@ -39,18 +49,28 @@ app = FastAPI(
     title="SMB Bookkeeper API",
     version="1.0.0",
     lifespan=lifespan,
+    # Hide docs in production
+    docs_url="/docs" if settings.app_env != "production" else None,
+    redoc_url="/redoc" if settings.app_env != "production" else None,
+    openapi_url="/openapi.json" if settings.app_env != "production" else None,
 )
+
+# Security middleware (outermost = applied first on response)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestSizeLimitMiddleware, max_size=1_048_576)  # 1MB
 
 # Rate limiting: 60 req/min default, protects Gemini API costs
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# CORS — restrict in production
+cors_origins = settings.get_cors_origins_list()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.get_cors_origins_list(),
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key"],
 )
 
 
@@ -75,7 +95,7 @@ app.include_router(webhook.router, tags=["WhatsApp"])
 # Paystack webhook must stay public (signature-verified separately)
 app.include_router(payments.router, prefix="/api", tags=["Payments"])
 
-# Protected dashboard routes — require API key in production
+# Protected dashboard routes — require API key
 app.include_router(merchants.router, prefix="/api", tags=["Merchants"], dependencies=[Depends(require_api_key)])
 app.include_router(transactions.router, prefix="/api", tags=["Transactions"], dependencies=[Depends(require_api_key)])
 app.include_router(reports.router, prefix="/api", tags=["Reports"], dependencies=[Depends(require_api_key)])
