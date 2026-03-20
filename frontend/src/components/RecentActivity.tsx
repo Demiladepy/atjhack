@@ -5,11 +5,12 @@ import {
   ArrowDownLeft,
   Clock,
   CheckCircle2,
+  Activity
 } from "lucide-react";
 
 import type { Transaction } from "@/lib/types";
 import { formatCurrency, formatRelative, cn } from "@/lib/utils";
-import { subscribeToTransactions, supabase } from "@/lib/supabase";
+import { subscribeToTransactions } from "@/lib/supabase";
 
 type TxnWithNew = Transaction & { isNew?: boolean };
 
@@ -25,54 +26,44 @@ function typeMeta(t: Transaction["type"]) {
       return {
         label: "Sale",
         icon: ArrowUpRight,
-        iconBg: "bg-[rgba(34,197,94,0.15)]",
-        iconFg: "text-[var(--green-400)]",
-        amountFg: "text-[var(--green-400)]",
+        iconBg: "bg-(--green-500)/20",
+        iconFg: "text-(--green-400)",
+        amountFg: "text-(--green-400)",
         prefix: "+",
-        flash: "rgba(34,197,94,0.10)",
+        flash: "rgba(74,222,128,0.15)",
       };
     case "expense":
     case "purchase":
       return {
         label: t === "purchase" ? "Purchase" : "Expense",
         icon: ArrowDownLeft,
-        iconBg: "bg-[rgba(239,68,68,0.12)]",
-        iconFg: "text-[var(--red-400)]",
-        amountFg: "text-[var(--red-400)]",
+        iconBg: "bg-red-500/20",
+        iconFg: "text-red-400",
+        amountFg: "text-red-400",
         prefix: "-",
-        flash: "rgba(239,68,68,0.10)",
+        flash: "rgba(248,113,113,0.15)",
       };
     case "payment_received":
       return {
         label: "Payment",
         icon: CheckCircle2,
-        iconBg: "bg-[rgba(59,130,246,0.12)]",
-        iconFg: "text-[var(--blue-500)]",
-        amountFg: "text-[var(--blue-500)]",
+        iconBg: "bg-blue-500/20",
+        iconFg: "text-blue-400",
+        amountFg: "text-blue-400",
         prefix: "+",
-        flash: "rgba(59,130,246,0.10)",
+        flash: "rgba(96,165,250,0.15)",
       };
     default:
       return {
         label: "Activity",
         icon: Clock,
-        iconBg: "bg-[rgba(245,158,11,0.12)]",
-        iconFg: "text-[var(--amber-400)]",
-        amountFg: "text-[var(--amber-400)]",
+        iconBg: "bg-amber-500/20",
+        iconFg: "text-amber-400",
+        amountFg: "text-amber-400",
         prefix: "",
-        flash: "rgba(245,158,11,0.10)",
+        flash: "rgba(251,191,36,0.15)",
       };
   }
-}
-
-function describe(t: Transaction) {
-  const item = t.item?.trim();
-  const customer = t.customer_name?.trim();
-  if (t.type === "sale" && item && customer) return `${item} to ${customer}`;
-  if (t.type === "sale" && item) return `${item} sold`;
-  if ((t.type === "expense" || t.type === "purchase") && item) return item;
-  if (t.type === "payment_received" && customer) return `Payment from ${customer}`;
-  return item || customer || "Transaction";
 }
 
 export function RecentActivity({
@@ -111,23 +102,27 @@ export function RecentActivity({
   }, [configured, merchantId, maxItems]);
 
   return (
-    <div className="rounded-xl border border-(--border) bg-[rgba(255,255,255,0.03)] p-6 shadow-(--shadow-sm) backdrop-blur">
-      <div className="flex min-w-0 items-center justify-between gap-2">
-        <span className="truncate text-sm font-semibold">Recent Activity</span>
-        <div className="shrink-0 inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-tertiary) px-2 py-1">
-          <span className={cn("h-2 w-2 rounded-full", configured ? "bg-(--green-500) liveDot" : "bg-(--red-500)")} />
-          <span className={cn("text-[10px] font-medium tracking-wider", configured ? "text-(--green-400)" : "text-(--red-400)")}>
-            {configured ? "LIVE" : "OFFLINE"}
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-black/40 p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl group">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-(--text-secondary)" />
+            <span className="text-base font-bold tracking-wide text-white">Live Transactions</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 backdrop-blur-md">
+          <span className={cn("h-2 w-2 rounded-full", configured ? "bg-(--green-500) shadow-[0_0_8px_var(--green-500)] liveDot" : "bg-red-500 shadow-[0_0_8px_#ef4444]")} />
+          <span className={cn("text-[10px] font-bold tracking-widest", configured ? "text-(--green-400)" : "text-red-400")}>
+            {configured ? "LIVE SYNC" : "OFFLINE"}
           </span>
         </div>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="space-y-[2px]">
         {txns.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-(--border) bg-(--bg-tertiary)/40 p-6 text-center">
-            <div className="text-sm font-semibold">No activity yet</div>
-            <div className="mt-1 text-sm text-(--text-secondary)">
-              Send a sale or expense via WhatsApp to see it appear here.
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
+            <Clock className="mb-3 h-8 w-8 text-white/20" />
+            <div className="text-sm font-semibold text-white/80">Awaiting your first text</div>
+            <div className="mt-1 text-xs text-white/50 max-w-[200px]">
+              Send a sale via WhatsApp to see the AI magic happen.
             </div>
           </div>
         ) : (
@@ -136,34 +131,34 @@ export function RecentActivity({
               const meta = typeMeta(t.type);
               const Icon = meta.icon;
               const bg = t.isNew ? meta.flash : "transparent";
+              const item = t.item?.trim() || t.customer_name?.trim() || "Transaction";
+              
               return (
                 <motion.div
                   key={t.id}
-                  initial={{ opacity: 0, y: -18, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1, backgroundColor: bg }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                  initial={{ opacity: 0, y: -20, rotateX: 20 }}
+                  animate={{ opacity: 1, y: 0, rotateX: 0, backgroundColor: bg }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
                   layout
-                  className="rounded-xl px-3 py-2"
+                  className="group/item relative flex items-center justify-between overflow-hidden rounded-xl p-3 transition-colors hover:bg-white/[0.04]"
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
-                      <div className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", meta.iconBg)}>
-                        <Icon className={cn("h-4 w-4", meta.iconFg)} />
+                  <div className="flex items-center gap-4">
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/5 shadow-inner transition-transform group-hover/item:scale-110", meta.iconBg)}>
+                      <Icon className={cn("h-4 w-4", meta.iconFg)} />
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="text-sm font-semibold text-white/90 truncate max-w-[180px] sm:max-w-[240px]">
+                        {item}
                       </div>
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <div className="truncate text-sm text-(--text-primary)" title={describe(t)}>
-                          {describe(t)}
-                        </div>
-                        <div className="mt-0.5 text-xs text-(--text-secondary)">
-                          {formatRelative(t.created_at)}
-                        </div>
+                      <div className="text-xs font-medium text-white/40">
+                        {formatRelative(t.created_at)}
                       </div>
                     </div>
-                    <div className={cn("shrink-0 font-mono text-sm", meta.amountFg)}>
-                      {meta.prefix}
-                      {formatCurrency(Number(t.total_amount) || 0)}
-                    </div>
+                  </div>
+                  <div className={cn("shrink-0 font-mono text-base font-bold drop-shadow-sm", meta.amountFg)}>
+                    {meta.prefix}
+                    {formatCurrency(Number(t.total_amount) || 0)}
                   </div>
                 </motion.div>
               );

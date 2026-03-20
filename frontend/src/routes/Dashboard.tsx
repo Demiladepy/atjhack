@@ -41,7 +41,7 @@ export default function Dashboard() {
   const netProfit = totalSales - totalExpenses;
   const outstandingDebts = debts.reduce((s, d) => s + Number(d.total_owed || 0), 0);
 
-  const effectiveCreditScore = isDemo ? DEMO_STATS.creditScore : creditScore ?? null;
+  const effectiveCreditScore = (isDemo ? DEMO_STATS.creditScore : creditScore) as import("@/lib/types").CreditScoreFactors | null;
 
   // Trend vs previous 7 days (using last 14 days from monthly)
   const trends = (() => {
@@ -77,13 +77,14 @@ export default function Dashboard() {
   })();
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4 border-b border-white/5 pb-6">
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="mt-1 truncate text-sm text-(--text-secondary)">
-            {merchant?.name ?? "Merchant"}
-            <span className="text-(--text-tertiary)"> · {merchant?.location ?? "Location"}</span>
+          <h1 className="truncate text-3xl font-bold tracking-tight text-white mb-1">Dashboard</h1>
+          <p className="truncate text-sm text-(--text-secondary) font-medium flex items-center gap-2">
+            <span>{merchant?.name ?? "Merchant"}</span>
+            <span className="w-1 h-1 rounded-full bg-white/20"></span>
+            <span>{merchant?.location ?? "Location"}</span>
           </p>
         </div>
         <div className="shrink-0">
@@ -92,8 +93,9 @@ export default function Dashboard() {
       </header>
 
       {loadingMerchant && !isDemo ? (
-        <div className="rounded-xl border border-(--border) bg-(--bg-secondary)/60 p-6 text-sm text-(--text-secondary)">
-          Loading dashboard…
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-8 text-center text-sm text-(--text-secondary) backdrop-blur-md">
+          <div className="w-6 h-6 border-2 border-(--green-500) border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          Syncing your financial data…
         </div>
       ) : (
         <div className="space-y-6">
