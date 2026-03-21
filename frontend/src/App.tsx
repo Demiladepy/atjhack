@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
 import Dashboard from "./routes/Dashboard";
@@ -21,20 +23,28 @@ function CreditScoreIndex() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route element={<AppShell />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/debtors" element={<Debtors />} />
-            <Route path="/credit-score" element={<CreditScoreIndex />} />
-            <Route path="/credit-score/:id" element={<CreditScore />} />
-            <Route path="/payment/success" element={<PaymentSuccess />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/transactions" element={<Transactions />} />
+              <Route path="/debtors" element={<Debtors />} />
+              <Route path="/credit-score" element={<CreditScoreIndex />} />
+              <Route path="/credit-score/:id" element={<CreditScore />} />
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

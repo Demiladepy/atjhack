@@ -13,7 +13,7 @@ from app.core.logging_config import configure_logging, get_logger
 from app.core.auth import require_api_key
 from app.core.exceptions import AppError, NotFoundError
 from app.core.middleware import SecurityHeadersMiddleware, RequestSizeLimitMiddleware
-from app.routes import webhook, merchants, transactions, reports, payments
+from app.routes import webhook, merchants, transactions, reports, payments, whatsapp_auth
 
 load_dotenv()
 logger = get_logger(__name__)
@@ -94,6 +94,8 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
 app.include_router(webhook.router, tags=["WhatsApp"])
 # Paystack webhook must stay public (signature-verified separately)
 app.include_router(payments.router, prefix="/api", tags=["Payments"])
+# WhatsApp OTP auth (public — handles its own verification)
+app.include_router(whatsapp_auth.router, prefix="/api/auth", tags=["WhatsApp Auth"])
 
 # Protected dashboard routes — require API key
 app.include_router(merchants.router, prefix="/api", tags=["Merchants"], dependencies=[Depends(require_api_key)])

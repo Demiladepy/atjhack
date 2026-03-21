@@ -1,16 +1,18 @@
 import { useMemo, useState, type ComponentType } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import {
   LayoutDashboard,
   ListChecks,
   Users,
   BadgePercent,
   ChevronLeft,
+  LogOut,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { LiveIndicator } from "@/components/layout/LiveIndicator";
 import { usePrimaryMerchant } from "@/hooks/usePrimaryMerchant";
+import { useAuth } from "@/contexts/AuthContext";
 
 type NavItem = {
   to: string;
@@ -32,8 +34,15 @@ function initials(name: string) {
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const { merchant, isDemo } = usePrimaryMerchant();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   const activePath = useMemo(() => {
     const p = location.pathname;
@@ -134,6 +143,19 @@ export function Sidebar() {
               </button>
             )}
           </div>
+
+          {user && (
+            <button
+              onClick={handleLogout}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400",
+                collapsed && "justify-center"
+              )}
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>Logout</span>}
+            </button>
+          )}
         </div>
       </div>
     </aside>

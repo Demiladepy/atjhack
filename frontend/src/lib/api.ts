@@ -77,3 +77,29 @@ export async function verifyPayment(reference: string) {
     metadata?: { merchant_id?: string; plan?: string };
   }>;
 }
+
+export async function sendWhatsAppOtp(phone: string) {
+  const res = await fetch(`${API_BASE}/api/auth/whatsapp/send-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({ detail: "Failed to send OTP" }));
+    throw new Error(data.detail || "Failed to send OTP");
+  }
+  return res.json() as Promise<{ success: boolean; message: string }>;
+}
+
+export async function verifyWhatsAppOtp(phone: string, otp: string) {
+  const res = await fetch(`${API_BASE}/api/auth/whatsapp/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, otp }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({ detail: "Verification failed" }));
+    throw new Error(data.detail || "Verification failed");
+  }
+  return res.json() as Promise<{ success: boolean; token: string }>;
+}

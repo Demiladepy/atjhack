@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     # Dashboard API key (protects /api/* endpoints)
     dashboard_api_key: str = ""
 
+    # Firebase Admin SDK (for WhatsApp custom token auth)
+    firebase_service_account_path: str = ""
+
+    # Twilio WhatsApp sender (for OTP messages)
+    twilio_whatsapp_from: str = "whatsapp:+14155238886"
+
     @field_validator("supabase_url", "supabase_key", "gemini_api_key", mode="before")
     @classmethod
     def require_non_empty(cls, v: str) -> str:
